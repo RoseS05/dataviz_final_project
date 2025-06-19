@@ -1,6 +1,6 @@
 # Data Visualization and Reproducible Research
 
-> Firstname Lastname. 
+> Rose Stucki. 
 
 
 The following is a sample of products created during the _"Data Visualization and Reproducible Research"_ course.
@@ -8,36 +8,45 @@ The following is a sample of products created during the _"Data Visualization an
 
 ## Project 01
 
-In the `project_01/` folder you can find... _[add short description of your revised project here]_
+In the `project_01/` folder you can find the code and report of the revised mini project 1. The main changes made 
+were first to the titles of the first two figures which were edited to include the main takeaway of the graph to 
+make the purpose clearer. The next change was made to the final graph. The category names were edited to have 
+better capitalization and they were reordered from most to least rat sightings to better match the graph. This 
+visualization is shown below.
 
-**Sample data visualization:** 
+All figures are saved in the figures folder.
 
-_[include your favorite visualization from this project here]_
-<img src="https://raw.githubusercontent.com/aalhamadani/dataviz_final_project/main/figures/echarts.png" width="70%" height="70%">
+![](./figures/rat_borough.png)
 
 
 ## Project 02
 
-In this project, I explored ... _[short description of your revised project goes here]_ Find the code and report in the `project_02/` folder.
+In this project, I explored interactive plots, maps, and coefficient plots. The main change made to this project 
+was fixing the report to include all needed information. Aside from that, I removed a factor from the coefficient 
+plot that had little to do with the song composition. Find the code and report in the `project_02/` folder.
 
-**Sample data visualization:** 
+All figures are saved in the figures folder.
 
-_[include your favorite visualization from this project here]_
-<img src="https://raw.githubusercontent.com/aalhamadani/dataviz_final_project/main/figures/fl_higher_ed.png" width="80%" height="80%">
-
-(you can place your figures in the `figures/` folder and use the `![](path_to_picture)` option to add the pictures here)
+![](./figures/song_danceability.png)
 
 
 ## Project 03
 
-In this project, I explored ... _[short description of the data visualizations you for this part of the project produced goes here]_
+In this project, I explored recreating the four visualizations provided to the best of my ability. I also created 
+a precipitation visualization shown below. Finally, I explored a dataset that included the top 100 song lyrics 
+from 2015. I performed a sentiment analysis and included the resulting data visualization below.
 
-**Sample data visualization:** 
+All figures are saved in the figures folder.
 
-_[include your favorite visualization from this project here]_
-<img src="https://raw.githubusercontent.com/aalhamadani/dataviz_final_project/main/figures/concrete_density.png" width="80%" height="80%">
+![](./figures/part_e_precipitation.png)
 
+![](./figures/option_a_song.png)
 
 ### Moving Forward
 
-_Please add here a short reflection on what you learned and what you plan to continue exploring in terms of data visualization, data storytelling, reproducible research, and/or related topics._
+I hope to improve my skills in creating my own data visualizations. This class has provided me with many tools 
+that will be useful when I need to present data and create figures in the future. In my own work I plan to pay 
+attention to data storytelling throughout the process or presenting my findings. In the past I've presented data 
+in a way that expects the data to speak for itself, I have now learned that data should be presented along with 
+it's takeaway to better achieve the creator's goal. This will make my data communication much more effective in 
+the future.

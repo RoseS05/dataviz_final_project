@@ -1,0 +1,110 @@
+---
+title: "Mini-Project 02"
+output: 
+  html_document:
+    keep_md: true
+    toc: true
+    toc_float: true
+---
+
+# Data Visualization Project 02
+
+
+```{r libraries, results=FALSE, message=FALSE}
+library(ggplot2)
+library(tidyverse)
+library(plotly)
+library(maps)
+library(mapproj)
+library(sf)
+library(ggthemes)
+library(broom)
+```
+
+## Interactive Plot
+
+The first plot I created was the interactive plot. After taking a brief look at a few of the data sets, I decided to use the West Roxbury houses dataset as this one was easy for me to understand. I started by plotting variables against each other and found that when plotting the year, there was one point at year 0 which squished the useful data to the right side. To fix this issue, I edited the data to only include years after 1600. Another issue I ran into when trying to graph was the column titles. Because the titles had spaces in them, R was not able to recognize them as variables, so I changes the title names to a format that could be used in code.
+
+The final plot shows the living area of homes against the year the home was built. The data points are also color coded based on the number of floors in the home where half a floor refers to a loft or a smaller story. The points are somewhat transparent to allow the different colors and the density of data points to be seen. However, it can still be difficult to see the spread of data especially for each category. For this reason this data is best shown as an interactive graph because the user can hide and show the different categories to allow more visibility of the data. From the data we can see that most homes had two floors and while there was significant overlap, the price tended to increase as the number of floors increased.
+
+```{r, message=FALSE, warning=FALSE}
+# data
+wrox <- read_csv("https://github.com/aalhamadani/datasets/raw/refs/heads/main/WestRoxbury.csv")
+
+# fix data column names
+colnames(wrox) <- c("total_value","tax","lot_sqft","yr_built","gross_area","living_area","floors","rooms","bedrooms","full_bath","half_bath","kitchen","fireplace","remodel")
+
+# remove outlier: 0 year data point
+wrox <- filter(wrox, yr_built > 1600)
+
+# plot
+plot <- ggplot(wrox, aes(x = yr_built, y = living_area, color = factor(floors))) +
+  geom_point(alpha = 0.3) +
+  labs(y = NULL, x = "Year", color = "Number\nof Floors", title = "Home Living Area over Time", subtitle = "Area is in square feet") +
+  annotate("text",x=1840,y=600,label = "Source: West Roxbury housing data.", size = 3) +
+  theme_minimal() 
+
+wrox_plot <- ggplotly(plot)
+wrox_plot
+
+# save html
+htmlwidgets::saveWidget(wrox_plot, file = "../figures/west_roxbury_living_area.html", selfcontained = TRUE)
+```
+
+## Spatial Visualization
+
+For the mapping plot, I wanted to show the lakes in Florida but wasn't sure what else to add to the visualization. In practice, I remembered creating maps of the entire United States and all the counties so I thought it would be a good challenge to map the lakes on top of a map of Florida divided by its counties. I had difficulty when I first tried to plot the two datasets together. Through some trial and error I was able to reduce the plotting code down to the geom_polygon and geom_sf functions which outlined Florida's counties and Florida's lakes respectively. To make the graph easier to look at I changed the fill and color of the map to contrasting shades of gray and made the fill and color of the lakes the same light blue color. The lakes are also slightly transparent so larger lakes don't completely obscure the county lines. Finally, an annotation was added to call out the sources for the map. This was used in place of the caption text because Florida maps tend to have a lot of empty space on the left side so this area is a good place for legends or text rather than making the figure larger by adding those elements to the bottom or right of the graph.
+
+The main takeaway of this map is exactly what it shows, the lakes of Florida. Going through the extra work of plotting Florida's counties on the same map gives the additional context of where each lake is in Florida that a simple plot of the lakes would not be able to. When making this graph I achieved my goal of layering maps on top of each other. One worry I had when graphing was that the projections wouldn't line up and I would have to troubleshoot. However this was not an issue, the layers lined up likely because maps are based on coordinates which means that on any graph the latitude and longitude of a point will have only one position on the graph so even though the layers are separate, they are  plotted on the same x and y. 
+
+```{r, message=FALSE, warning=FALSE}
+# data
+loc_lakes <- "C:\\Users\\roses\\OneDrive\\Documents\\R\\Data Visualization\\dataviz_mini-project_02\\data\\Florida_Lakes\\Florida_Lakes.shp"
+fla_lakes <- st_read(loc_lakes, quiet = TRUE)
+counties <- map_data("county")
+
+# filter
+florida <- counties %>%
+  filter(region == "florida")
+
+# plot
+
+ggplot() +
+  geom_polygon(data=florida,mapping=aes(x=long,y=lat,group=group), color="gray90",fill="gray30",size=0.15) +
+  geom_sf(data=fla_lakes,alpha=0.8,col="lightblue",fill="lightblue") +
+  labs(title = "Florida Lakes") +
+  annotate("text", x = -85, y = 25.5, label = "Source: Florida Lakes, United States Counties.", size = 3.5) +
+  theme_map() +
+  theme(plot.title = element_text(face = "bold"))
+
+# save png
+ggsave("../figures/florida_lakes.png")
+```
+
+## Visualization of a Model
+
+In the textbook visualizations of model did not make sense to me, however working on this visualization made the purpose and assembly of this graph much more clear. The purpose of a coefficient plot is to show how variables relate to one element. In this case I used the summer hits dataset and chose danceability as the variable of interest. I chose most of the continuous variables in the dataset to compare it against to see how each were related as well as the variation of each variable. To do this I began with the data and followed the steps in the book to tidy the data and convert it to the marginal effects of each varaible on danceability. From there I graphed the result, reordering the y-axis based on their estimate to make the graph easier to read. I also added a line at 0 to clearly show which variable had little to no effect on danceability. To improve the graph I also replaced the x-label and the y-axis labels to a more cohesive format as well as adding a title and caption to the graph.
+
+The data shows that duration, loudness, and tempo had little effect on danceability, not only having a low estimate but also very little variation in their effect. Valence and speechiness had the greatest effect with valence having a much smaller variance. Energy had the most negative effect which indicates that it does still have a significant effect but in the opposite direction as compared to valence. As valence increases, danceability increases but as energy increases, danceability decreases.
+
+```{r, message=FALSE}
+# data
+hits <- read_csv("https://github.com/aalhamadani/datasets/raw/refs/heads/main/all_billboard_summer_hits.csv")
+
+# filter
+hits_lm <- lm(danceability ~ energy + loudness + speechiness + acousticness + instrumentalness + liveness + valence + tempo + duration_ms,data=hits)
+
+hits_coefs <- tidy(hits_lm, conf.int=TRUE) %>% # tidy data
+  filter(term != "(Intercept)")
+
+# plot
+ggplot(hits_coefs,aes(x=estimate,y=reorder(fct_rev(term),estimate))) +
+  geom_pointrange(aes(xmin=conf.low,xmax=conf.high)) +
+  geom_vline(xintercept=0,color="steelblue") +
+  labs(x = "Estimate", y = NULL, title = "Effect of song elements on danceability", caption = "Source: All billboard summer hits.") +
+  scale_y_discrete(labels = c("valence" = "Valence", "speechiness" = "Speechiness", "instrumentalness" = "Instrumentalness", "duration_ms" = "Duration(ms)", "loudness" = "Loudness", "tempo" = "Tempo", "acousticness" = "Acousticness", "liveness" = "Liveness", "energy" = "Energy")) +
+  theme_minimal()
+
+# save png
+ggsave("../figures/song_danceability.png")
+```
